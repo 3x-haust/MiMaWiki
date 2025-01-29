@@ -18,6 +18,10 @@ export class AuthService {
   async signUp(signUpDto: SignUpDto) {
     const { email, password, nickname, code } = signUpDto;
 
+    if (!email.endsWith('@e-mirim.hs.kr')) {
+      throw new BadRequestException('이메일 도메인이 유효하지 않습니다.');
+    }
+
     const isValidCode = await this.emailService.verifyCode(email, code);
     if (!isValidCode) throw new BadRequestException('잘못된 인증 코드입니다.');
 
