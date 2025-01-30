@@ -1,18 +1,18 @@
 import { Route, Routes } from 'react-router-dom'
-import HomePage from '../pages/home'
-import NotFoundPage from '../pages/notfound'
-import SignupPage from '../pages/signup'
-import LoginPage from '../pages/login'
+import { HomePage } from '../pages/home'
+import { NotFoundPage } from '../pages/notfound'
+import { Header } from '../widgets/header'
+import { Footer } from '../widgets/footer'
 
 function App() {
   return (
     <>
+      <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <Footer />
     </>
   )
 }
