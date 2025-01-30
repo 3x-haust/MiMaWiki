@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { styled } from "styled-components";
 import { theme } from "../../../app/styles";
 import { useAuthStore } from '../hooks';
+import { logIn, signUp } from '../api';
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
   display: ${props => props.$isOpen ? 'flex' : 'none'};
@@ -195,30 +196,20 @@ export const AuthModal = ({ isOpen, onClose }: {
       showError('모든 필드를 올바르게 입력해주세요');
       return;
     }
-
+  
     setLoading(true);
     try {
-      const endpoint = isSignUp ? '/auth/signup' : '/auth/login';
-      const body = isSignUp ? formData : {
-        nickname: formData.nickname,
-        password: formData.password
-      };
-
-      const response = await fetch(`http://127.0.0.1:3000${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) throw new Error(responseData.message);
-      
       if (isSignUp) {
+        await signUp(formData);
         showError('회원가입 성공! 로그인해주세요');
         setIsSignUp(false);
       } else {
-        login(formData.nickname, responseData.data);
+        const responseData = await logIn(formData.nickname, formData.password);
+        if (typeof responseData.data === 'string') {
+          login(formData.nickname, responseData.data);
+        } else {
+          showError('로그인 데이터가 올바르지 않습니다');
+        }
         onClose();
       }
     } catch (err) {
