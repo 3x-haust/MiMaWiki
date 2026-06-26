@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import Cookies from 'js-cookie';
 
 interface AuthStore {
   isLoggedIn: boolean;
@@ -11,22 +12,22 @@ interface AuthStore {
 export const useAuthStore = create<AuthStore>((set) => ({
   isLoggedIn: false,
   user: null,
-  
+
   login: (nickname, token) => {
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('user', JSON.stringify({ nickname }));
+    Cookies.set('authToken', token, { secure: true, sameSite: 'Strict' });
+    Cookies.set('user', JSON.stringify({ nickname }), { secure: true, sameSite: 'Strict' });
     set({ isLoggedIn: true, user: { nickname } });
   },
 
   logout: () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
+    Cookies.remove('authToken');
+    Cookies.remove('user');
     set({ isLoggedIn: false, user: null });
   },
 
   initializeAuth: () => {
-    const token = localStorage.getItem('authToken');
-    const user = localStorage.getItem('user');
+    const token = Cookies.get('authToken');
+    const user = Cookies.get('user');
     if (token && user) {
       set({ isLoggedIn: true, user: JSON.parse(user) });
     }

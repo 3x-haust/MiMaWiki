@@ -7,7 +7,6 @@ export interface AuthResponse {
     createdAt: string;
     updatedAt: string;
   }
-  error?: string;
   status: number;
   timeStamp: string;
   message: string;

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { styled } from "styled-components";
 import { theme } from "../../../app/styles";
 import { useAuthStore } from '../hooks';
-import { logIn, signUp } from '../api';
+import { logIn, sendVerificationCode, signUp } from '../api';
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
   display: ${props => props.$isOpen ? 'flex' : 'none'};
@@ -77,6 +77,10 @@ const ErrorModal = styled.div`
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   z-index: 1001;
   text-align: center;
+
+  p {
+    font-size: 1rem;
+  }
 `;
 
 const ValidationMessage = styled.small<{ $valid: boolean }>`
@@ -106,6 +110,7 @@ export const AuthModal = ({ isOpen, onClose }: {
   const [timeLeft, setTimeLeft] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [errorColor, setErrorColor] = useState('red');
   const [isSignUp, setIsSignUp] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [fieldValidity, setFieldValidity] = useState({
@@ -161,8 +166,9 @@ export const AuthModal = ({ isOpen, onClose }: {
     setFieldValidity(isFormValid);
   }, [isFormValid]);
 
-  const showError = (message: string) => {
+  const showError = (message: string, color = 'red') => {
     setError(message);
+    setErrorColor(color);
     setShowErrorModal(true);
     setTimeout(() => setShowErrorModal(false), 2000);
   };
@@ -175,13 +181,7 @@ export const AuthModal = ({ isOpen, onClose }: {
     
     try {
       setLoading(true);
-      const response = await fetch('http://127.0.0.1:3000/auth/send-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email })
-      });
-
-      if (!response.ok) throw new Error('인증코드 전송 실패');
+      sendVerificationCode(formData.email);
       setTimeLeft(300);
     } catch (err) {
       showError(err instanceof Error ? err.message : '요청 처리 실패');
@@ -201,7 +201,7 @@ export const AuthModal = ({ isOpen, onClose }: {
     try {
       if (isSignUp) {
         await signUp(formData);
-        showError('회원가입 성공! 로그인해주세요');
+        showError('회원가입 성공! 로그인해주세요', 'black');
         setIsSignUp(false);
       } else {
         const responseData = await logIn(formData.nickname, formData.password);
@@ -213,7 +213,9 @@ export const AuthModal = ({ isOpen, onClose }: {
         onClose();
       }
     } catch (err) {
-      showError(err instanceof Error ? err.message : '처리 중 오류 발생');
+      if (err instanceof Error) {
+        showError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -349,8 +351,8 @@ export const AuthModal = ({ isOpen, onClose }: {
 
         {showErrorModal && (
           <ErrorModal>
-            <p style={{ color: 'red' }}>{error}</p>
-            <Button 
+            <p style={{ color: errorColor }}>{error}</p>
+            <Button
               onClick={() => setShowErrorModal(false)}
               style={{ marginTop: '1rem' }}
             >
