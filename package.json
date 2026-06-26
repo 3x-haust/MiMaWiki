@@ -1,0 +1,14 @@
+{
+  "name": "mimawiki",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "yarn@1.22.22",
+  "scripts": {
+    "build": "yarn --cwd mimawiki_frontend install --frozen-lockfile && yarn --cwd mimawiki_frontend build",
+    "start": "serve -s mimawiki_frontend/dist -l ${PORT:-3000}"
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}

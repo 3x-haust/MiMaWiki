@@ -23,6 +23,9 @@ test.describe('MiMaWiki shell', () => {
       await expect(page.getByTestId('wiki-shell')).toBeVisible();
       await expect(page.getByTestId('document-rail')).toContainText('최근 문서');
       await expect(page.getByRole('heading', { name: '미림마이스터고등학교' })).toBeVisible();
+      await expect(page.getByLabel('학교 정보')).toContainText('뉴미디어소프트웨어');
+      await expect(page.getByLabel('빠른 문서 링크')).toContainText('업데이트 내역');
+      await expect(page.getByLabel('문서 지표')).toContainText('조회수');
       await expect(page.getByTestId('metadata-rail')).toContainText('문서 정보');
       await expect(page.getByRole('button', { name: '편집' })).toBeVisible();
       await expect(page.getByRole('button', { name: '최근변경' })).toBeVisible();
@@ -44,13 +47,28 @@ test.describe('MiMaWiki shell', () => {
   test('document selection updates the article', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('button', { name: /전공동아리/ }).click();
+    const documentRail = page.getByTestId('document-rail');
+    await documentRail.getByRole('button', { name: /전공동아리/ }).click();
 
     await expect(page.getByRole('heading', { name: '전공동아리' })).toBeVisible();
-    await expect(page.getByRole('button', { name: /전공동아리/ })).toHaveAttribute(
+    await expect(documentRail.getByRole('button', { name: /전공동아리/ })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
+  });
+
+  test('front page utility links move between wiki surfaces', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('button', { name: '방명록' }).click();
+    await expect(page.getByRole('heading', { name: '문서 토론' })).toBeVisible();
+
+    await page.getByRole('button', { name: '읽기' }).click();
+    await page
+      .getByLabel('빠른 문서 링크')
+      .getByRole('button', { name: '전공동아리' })
+      .click();
+    await expect(page.getByRole('heading', { name: '전공동아리' })).toBeVisible();
   });
 
   test('editing creates history, diff, discussion, and recent changes', async ({ page }) => {
@@ -87,7 +105,9 @@ test.describe('MiMaWiki shell', () => {
 
     await page.getByLabel('상단 문서 검색').fill('전공');
     await page.getByRole('button', { name: '검색' }).click();
-    await expect(page.getByRole('button', { name: /전공동아리/ })).toBeVisible();
+    await expect(
+      page.getByTestId('document-rail').getByRole('button', { name: /전공동아리/ }),
+    ).toBeVisible();
 
     await page.getByRole('button', { name: '최근 변경' }).click();
     await expect(page.getByRole('heading', { name: '최근 변경' })).toBeVisible();

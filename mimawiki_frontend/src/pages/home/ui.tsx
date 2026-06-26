@@ -200,6 +200,120 @@ const ArticleSummary = styled.p`
   margin-bottom: var(--space-6);
 `;
 
+const ArticleMetrics = styled.dl`
+  border-bottom: 1px solid ${theme.borderSubtle};
+  border-top: 1px solid ${theme.borderSubtle};
+  display: grid;
+  gap: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: var(--space-5);
+
+  @media screen and (max-width: ${screen.phone}) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+`;
+
+const MetricItem = styled.div`
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+
+  & + & {
+    border-left: 1px solid ${theme.borderSubtle};
+  }
+
+  @media screen and (max-width: ${screen.phone}) {
+    & + & {
+      border-left: 0;
+      border-top: 1px solid ${theme.borderSubtle};
+    }
+  }
+`;
+
+const MetricTerm = styled.dt`
+  color: ${theme.textTertiary};
+  font-size: 12px;
+  font-weight: 800;
+`;
+
+const MetricDescription = styled.dd`
+  color: ${theme.black};
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+`;
+
+const UtilityLinks = styled.nav`
+  border: 1px solid ${theme.borderSubtle};
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  padding: var(--space-3);
+`;
+
+const UtilityButton = styled.button`
+  color: ${theme.primary};
+  font-size: 14px;
+  font-weight: 800;
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:hover {
+    background-color: ${theme.accentSoft};
+  }
+`;
+
+const InfoTable = styled.dl`
+  border: 2px solid ${theme.border};
+  display: grid;
+  margin-bottom: var(--space-6);
+`;
+
+const InfoRow = styled.div`
+  display: grid;
+  grid-template-columns: minmax(92px, 18%) minmax(0, 1fr);
+  min-width: 0;
+
+  & + & {
+    border-top: 1px solid ${theme.border};
+  }
+
+  @media screen and (max-width: ${screen.phone}) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+`;
+
+const InfoTerm = styled.dt`
+  align-items: center;
+  background-color: ${theme.primary};
+  color: ${theme.white};
+  display: flex;
+  font-size: 13px;
+  font-weight: 800;
+  justify-content: center;
+  line-height: 1.45;
+  min-height: 42px;
+  padding: var(--space-2);
+  text-align: center;
+`;
+
+const InfoDescription = styled.dd`
+  align-items: center;
+  color: ${theme.black};
+  display: flex;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+`;
+
 const Panel = styled.section`
   display: grid;
   gap: var(--space-4);
@@ -359,6 +473,8 @@ const EmptyState = styled.p`
 
 const getEditorName = () => '미림 편집자';
 
+const formatCount = (value: number) => value.toLocaleString('ko-KR');
+
 export const HomePage = () => {
   const [storedState, setStoredState] = useState<StoredWikiState>(() =>
     loadWikiState(),
@@ -402,6 +518,16 @@ export const HomePage = () => {
     revisionFrames.length > 0
       ? revisionFrames[revisionFrames.length - 1]
       : undefined;
+  const contributorNames = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...selectedArticle.contributors,
+          ...articleRevisions.map((revision) => revision.editor),
+        ]),
+      ),
+    [articleRevisions, selectedArticle.contributors],
+  );
   const recentChanges = useMemo(
     () =>
       Object.values(storedState.revisions)
@@ -467,6 +593,19 @@ export const HomePage = () => {
       setDraftContent(selectedArticle.content);
     }
     setViewMode(nextMode);
+  };
+
+  const handleUtilityClick = (target: string) => {
+    if (target === '문서 토론') {
+      setViewMode('discussion');
+      return;
+    }
+
+    const nextArticle = articles.find((article) => article.title === target);
+    if (nextArticle !== undefined) {
+      setSelectedSlug(nextArticle.slug);
+      setViewMode('read');
+    }
   };
 
   const handleSave = (event: FormEvent<HTMLFormElement>) => {
@@ -650,7 +789,34 @@ export const HomePage = () => {
       );
     }
 
-    return <MimaMark content={selectedArticle.content} />;
+    return (
+      <>
+        {selectedArticle.quickLinks !== undefined ? (
+          <UtilityLinks aria-label="빠른 문서 링크">
+            {selectedArticle.quickLinks.map((link) => (
+              <UtilityButton
+                key={`${link.name}-${link.content}`}
+                onClick={() => handleUtilityClick(link.content)}
+                type="button"
+              >
+                {link.name}
+              </UtilityButton>
+            ))}
+          </UtilityLinks>
+        ) : null}
+        {selectedArticle.schoolInfo !== undefined ? (
+          <InfoTable aria-label="학교 정보">
+            {selectedArticle.schoolInfo.map((row) => (
+              <InfoRow key={row.name}>
+                <InfoTerm>{row.name}</InfoTerm>
+                <InfoDescription>{row.content}</InfoDescription>
+              </InfoRow>
+            ))}
+          </InfoTable>
+        ) : null}
+        <MimaMark content={selectedArticle.content} />
+      </>
+    );
   };
 
   return (
@@ -718,6 +884,24 @@ export const HomePage = () => {
           </ArticleTools>
           <ArticleTitle>{selectedArticle.title}</ArticleTitle>
           <ArticleSummary>{selectedArticle.summary}</ArticleSummary>
+          <ArticleMetrics aria-label="문서 지표">
+            <MetricItem>
+              <MetricTerm>조회수</MetricTerm>
+              <MetricDescription>
+                {formatCount(selectedArticle.viewCount + articleRevisions.length)}
+              </MetricDescription>
+            </MetricItem>
+            <MetricItem>
+              <MetricTerm>추천</MetricTerm>
+              <MetricDescription>
+                {formatCount(selectedArticle.likeCount)}
+              </MetricDescription>
+            </MetricItem>
+            <MetricItem>
+              <MetricTerm>기여자</MetricTerm>
+              <MetricDescription>{contributorNames.length}명</MetricDescription>
+            </MetricItem>
+          </ArticleMetrics>
           {renderMainPanel()}
         </Article>
 
@@ -734,11 +918,17 @@ export const HomePage = () => {
             </MetadataRow>
             <MetadataRow>
               <MetadataTerm>기여</MetadataTerm>
-              <MetadataDescription>{selectedArticle.editor}</MetadataDescription>
+              <MetadataDescription>{contributorNames.join(', ')}</MetadataDescription>
             </MetadataRow>
             <MetadataRow>
               <MetadataTerm>리비전</MetadataTerm>
               <MetadataDescription>r{selectedArticle.version}</MetadataDescription>
+            </MetadataRow>
+            <MetadataRow>
+              <MetadataTerm>조회수</MetadataTerm>
+              <MetadataDescription>
+                {formatCount(selectedArticle.viewCount + articleRevisions.length)}
+              </MetadataDescription>
             </MetadataRow>
             <MetadataRow>
               <MetadataTerm>대표 색상</MetadataTerm>

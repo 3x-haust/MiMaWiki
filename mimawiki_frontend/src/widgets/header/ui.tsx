@@ -71,8 +71,10 @@ const UtilityBox = styled.div`
   gap: var(--space-3);
 
   @media screen and (max-width: ${screen.phone}) {
+    align-items: stretch;
+    flex-direction: column;
+    gap: var(--space-2);
     width: 100%;
-    justify-content: space-between;
   }
 `;
 
@@ -135,6 +137,12 @@ const NavigationButton = styled.button`
     cursor: not-allowed;
     background-color: rgba(255, 255, 255, 0.08);
   }
+
+  @media screen and (max-width: ${screen.phone}) {
+    justify-content: center;
+    white-space: nowrap;
+    width: 100%;
+  }
 `;
 
 const SearchButton = styled(NavigationButton)`
@@ -147,6 +155,10 @@ const SearchButton = styled(NavigationButton)`
   &:hover:not(:disabled) {
     background-color: ${theme.accentSoft};
     border-color: ${theme.borderSubtle};
+  }
+
+  @media screen and (max-width: ${screen.phone}) {
+    width: auto;
   }
 `;
 
