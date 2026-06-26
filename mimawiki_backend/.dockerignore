@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+logs
+*.log
+.env
+.env.*
+.DS_Store
+Dockerfile.k3s-deployer
