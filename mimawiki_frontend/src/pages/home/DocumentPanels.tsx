@@ -28,6 +28,7 @@ import {
 
 type EditPanelProps = {
   readonly draftContent: string;
+  readonly isProtected: boolean;
   readonly onDraftChange: (content: string) => void;
   readonly onSave: (event: FormEvent<HTMLFormElement>) => void;
   readonly onCancel: () => void;
@@ -35,25 +36,40 @@ type EditPanelProps = {
 
 export const EditPanel = ({
   draftContent,
+  isProtected,
   onDraftChange,
   onSave,
   onCancel,
 }: EditPanelProps) => (
   <Panel aria-label="문서 편집">
-    <PanelTitle>문서 편집</PanelTitle>
-    <Form onSubmit={onSave}>
-      <TextArea
-        aria-label="문서 내용"
-        onChange={(event) => onDraftChange(event.currentTarget.value)}
-        value={draftContent}
-      />
-      <ButtonRow>
-        <SecondaryButton onClick={onCancel} type="button">
-          취소
-        </SecondaryButton>
-        <PrimaryButton type="submit">저장</PrimaryButton>
-      </ButtonRow>
-    </Form>
+    {isProtected ? (
+      <>
+        <PanelTitle>보호된 문서</PanelTitle>
+        <EmptyState>이 문서는 보호되어 편집할 수 없습니다.</EmptyState>
+        <ButtonRow>
+          <SecondaryButton onClick={onCancel} type="button">
+            읽기로 돌아가기
+          </SecondaryButton>
+        </ButtonRow>
+      </>
+    ) : (
+      <>
+        <PanelTitle>문서 편집</PanelTitle>
+        <Form onSubmit={onSave}>
+          <TextArea
+            aria-label="문서 내용"
+            onChange={(event) => onDraftChange(event.currentTarget.value)}
+            value={draftContent}
+          />
+          <ButtonRow>
+            <SecondaryButton onClick={onCancel} type="button">
+              취소
+            </SecondaryButton>
+            <PrimaryButton type="submit">저장</PrimaryButton>
+          </ButtonRow>
+        </Form>
+      </>
+    )}
   </Panel>
 );
 

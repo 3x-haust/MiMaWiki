@@ -25,15 +25,44 @@ export type DiscussionComment = {
   readonly content: string;
 };
 
+export type WikiRedirect = {
+  readonly aliasSlug: string;
+  readonly aliasTitle: string;
+  readonly targetSlug: string;
+  readonly createdAt: string;
+};
+
+export type WikiTemplate = {
+  readonly id: string;
+  readonly name: string;
+  readonly content: string;
+  readonly updatedAt: string;
+};
+
+export type WikiAttachment = {
+  readonly id: string;
+  readonly articleSlug: string;
+  readonly name: string;
+  readonly description: string;
+  readonly uploadedAt: string;
+};
+
 export type StoredWikiState = {
   readonly revisions: Record<string, readonly WikiRevision[]>;
   readonly discussions: Record<string, readonly DiscussionComment[]>;
   readonly createdArticles: readonly WikiArticle[];
   readonly likedSlugs: readonly string[];
+  readonly redirects: Record<string, WikiRedirect>;
+  readonly templates: readonly WikiTemplate[];
+  readonly attachments: readonly WikiAttachment[];
+  readonly protectedSlugs: readonly string[];
+  readonly deletedSlugs: readonly string[];
+  readonly watchlistSlugs: readonly string[];
 };
 
 export type WikiSnapshot = WikiArticle & {
   readonly version: number;
+  readonly renderedContent: string;
 };
 
 export type RevisionFrame = {
@@ -58,6 +87,19 @@ const formatDateTime = (date: Date) => {
   const minutes = `${date.getMinutes()}`.padStart(2, '0');
   return `${year}.${month}.${day} ${hours}:${minutes}`;
 };
+
+export const createArticleSlug = (title: string) =>
+  title.trim().toLowerCase().replace(/\s+/g, '-');
+
+export const expandTemplates = (
+  content: string,
+  templates: readonly WikiTemplate[],
+) =>
+  content.replace(/\{\{([^{}]+)\}\}/g, (match, rawName: string) => {
+    const name = rawName.trim();
+    const template = templates.find((item) => item.name === name);
+    return template?.content ?? match;
+  });
 
 export const createTextPatch = (previous: string, next: string): TextPatch => {
   let start = 0;
@@ -91,7 +133,9 @@ export const applyTextPatch = (content: string, patch: TextPatch) =>
   )}`;
 
 export const buildSnapshots = (state: StoredWikiState): readonly WikiSnapshot[] =>
-  [...initialArticles, ...state.createdArticles].map((article) => {
+  [...initialArticles, ...state.createdArticles]
+    .filter((article) => !state.deletedSlugs.includes(article.slug))
+    .map((article) => {
     const revisions = state.revisions[article.slug] ?? [];
     const content = revisions.reduce(
       (currentContent, revision) => applyTextPatch(currentContent, revision.patch),
@@ -106,6 +150,7 @@ export const buildSnapshots = (state: StoredWikiState): readonly WikiSnapshot[] 
       updatedAt: latestRevision?.editedAt ?? article.updatedAt,
       editor: latestRevision?.editor ?? article.editor,
       version: revisions.length + 1,
+      renderedContent: expandTemplates(content, state.templates),
     };
   });
 
@@ -132,6 +177,38 @@ export const createDiscussionComment = (
   author,
   createdAt: formatDateTime(new Date()),
   content,
+});
+
+export const createWikiRedirect = (
+  aliasTitle: string,
+  targetSlug: string,
+): WikiRedirect => ({
+  aliasSlug: createArticleSlug(aliasTitle),
+  aliasTitle: aliasTitle.trim(),
+  targetSlug,
+  createdAt: formatDateTime(new Date()),
+});
+
+export const createWikiTemplate = (
+  name: string,
+  content: string,
+): WikiTemplate => ({
+  id: createId(),
+  name: name.trim(),
+  content: content.trimEnd(),
+  updatedAt: formatDateTime(new Date()),
+});
+
+export const createWikiAttachment = (
+  articleSlug: string,
+  name: string,
+  description: string,
+): WikiAttachment => ({
+  id: createId(),
+  articleSlug,
+  name: name.trim(),
+  description: description.trim(),
+  uploadedAt: formatDateTime(new Date()),
 });
 
 export const buildRevisionFrames = (

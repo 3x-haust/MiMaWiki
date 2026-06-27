@@ -24,6 +24,7 @@ const toolModes = [
   ['recent', '최근변경'],
   ['create', '생성'],
   ['mypage', '마이페이지'],
+  ['engine', '엔진'],
 ] as const satisfies readonly (readonly [ViewMode, string])[];
 
 type ArticleHeaderProps = {

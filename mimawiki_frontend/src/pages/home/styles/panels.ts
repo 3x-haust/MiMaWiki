@@ -185,6 +185,7 @@ export const FeatureGrid = styled.div`
 `;
 
 export const FeatureCard = styled.div`
+  align-content: start;
   border: 1px solid ${theme.borderSubtle};
   border-radius: 6px;
   display: grid;

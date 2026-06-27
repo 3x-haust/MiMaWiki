@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import type { ViewMode } from './homeTypes';
 
-type HeaderMode = Extract<ViewMode, 'create' | 'discussion' | 'recent'>;
+type HeaderMode = Extract<ViewMode, 'discussion' | 'engine' | 'recent'>;
 
 export const useArticleMetadata = (title: string, summary: string) => {
   useEffect(() => {
@@ -32,7 +32,7 @@ export const useHeaderEvents = (
         event instanceof CustomEvent &&
         (event.detail === 'recent' ||
           event.detail === 'discussion' ||
-          event.detail === 'create')
+          event.detail === 'engine')
       ) {
         onMode(event.detail);
       }

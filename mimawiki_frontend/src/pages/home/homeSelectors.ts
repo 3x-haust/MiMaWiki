@@ -1,7 +1,13 @@
 import { initialArticles, type WikiArticle } from './articles';
 import { getEditorName } from './homeConstants';
 import type { SidebarRecentChange } from './homeTypes';
-import type { StoredWikiState, WikiRevision, WikiSnapshot } from './wikiStore';
+import type {
+  StoredWikiState,
+  WikiAttachment,
+  WikiRedirect,
+  WikiRevision,
+  WikiSnapshot,
+} from './wikiStore';
 
 type CreateArticleInput = {
   readonly title: string;
@@ -13,14 +19,20 @@ type CreateArticleInput = {
 export const filterArticles = (
   articles: readonly WikiSnapshot[],
   query: string,
+  redirects: Record<string, WikiRedirect> = {},
 ) => {
   const normalizedQuery = query.trim().toLowerCase();
   if (normalizedQuery.length === 0) {
     return articles;
   }
 
+  const redirectTargets = Object.values(redirects)
+    .filter((redirect) => redirect.aliasTitle.toLowerCase().includes(normalizedQuery))
+    .map((redirect) => redirect.targetSlug);
+
   return articles.filter((article) =>
-    `${article.title} ${article.category} ${article.summary}`
+    redirectTargets.includes(article.slug) ||
+    `${article.title} ${article.category} ${article.summary} ${article.content}`
       .toLowerCase()
       .includes(normalizedQuery),
   );
@@ -88,6 +100,40 @@ export const getContributedArticles = (
         (revision) => revision.editor === getEditorName(),
       ),
   );
+
+export const getCategoryIndex = (articles: readonly WikiSnapshot[]) => {
+  const categories = new Map<string, readonly WikiSnapshot[]>();
+
+  for (const article of articles) {
+    const current = categories.get(article.category) ?? [];
+    categories.set(article.category, [...current, article]);
+  }
+
+  return Array.from(categories.entries()).sort(([left], [right]) =>
+    left.localeCompare(right),
+  );
+};
+
+export const getBacklinks = (
+  articles: readonly WikiSnapshot[],
+  targetArticle: WikiSnapshot,
+) =>
+  articles.filter((article) => {
+    if (article.slug === targetArticle.slug) {
+      return false;
+    }
+
+    const quickLinkText =
+      article.quickLinks?.map((link) => `${link.name} ${link.content}`).join(' ') ?? '';
+    return `${article.title} ${article.content} ${quickLinkText}`.includes(
+      targetArticle.title,
+    );
+  });
+
+export const getArticleAttachments = (
+  attachments: readonly WikiAttachment[],
+  articleSlug: string,
+) => attachments.filter((attachment) => attachment.articleSlug === articleSlug);
 
 export const createLocalArticle = ({
   title,

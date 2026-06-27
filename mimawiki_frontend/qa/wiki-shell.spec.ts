@@ -198,7 +198,63 @@ test.describe('MiMaWiki shell', () => {
     await expect(page.getByRole('heading', { name: '문서 토론' })).toBeVisible();
 
     await page.getByRole('button', { name: '특수 기능 ▾' }).click();
-    await expect(page.getByRole('heading', { name: '문서 생성' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '위키 엔진' })).toBeVisible();
     await expectRemovedFeatureCopyAbsent(page);
+  });
+
+  test('wiki engine functions work from the engine surface', async ({ page }) => {
+    await page.goto('/');
+
+    await page.getByRole('button', { name: '엔진' }).click();
+    await expect(page.getByRole('heading', { name: '위키 엔진' })).toBeVisible();
+    await expect(page.getByLabel('위키 엔진')).toContainText('리다이렉트');
+    await expect(page.getByLabel('위키 엔진')).toContainText('분류 색인');
+    await expect(page.getByLabel('위키 엔진')).toContainText('템플릿');
+    await expect(page.getByLabel('위키 엔진')).toContainText('역링크');
+    await expect(page.getByLabel('위키 엔진')).toContainText('첨부');
+    await expect(page.getByLabel('위키 엔진')).toContainText('보호');
+    await expect(page.getByLabel('위키 엔진')).toContainText('삭제/복구');
+    await expect(page.getByLabel('위키 엔진')).toContainText('감시 목록');
+
+    await page.getByLabel('리다이렉트 별칭').fill('대문 별칭');
+    await page.getByRole('button', { name: '리다이렉트 추가' }).click();
+    await expect(page.getByLabel('위키 엔진')).toContainText('대문 별칭 → 미마위키:대문');
+
+    await page.getByLabel('템플릿 이름').fill('교내 안내');
+    await page.getByLabel('템플릿 내용').fill('미림 템플릿 출력');
+    await page.getByRole('button', { name: '템플릿 저장' }).click();
+    await expect(page.getByLabel('위키 엔진')).toContainText('교내 안내');
+
+    await page.getByLabel('첨부 이름').fill('회의록.pdf');
+    await page.getByLabel('첨부 설명').fill('운영 회의 자료');
+    await page.getByRole('button', { name: '첨부 추가' }).click();
+    await expect(page.getByLabel('위키 엔진')).toContainText('회의록.pdf');
+
+    await page.getByRole('button', { name: '감시 추가' }).click();
+    await expect(page.getByLabel('위키 엔진')).toContainText('미마위키:대문 감시 중');
+
+    await page.getByRole('button', { name: '문서 보호' }).click();
+    await page.getByRole('button', { name: '편집', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '보호된 문서' })).toBeVisible();
+    await page.getByRole('button', { name: '엔진' }).click();
+    await page.getByRole('button', { name: '보호 해제' }).click();
+
+    await page.getByLabel('새 문서명').fill('미마위키:새 대문');
+    await page.getByRole('button', { name: '문서 이동' }).click();
+    await expect(page.getByRole('heading', { name: '미마위키:새 대문' })).toBeVisible();
+
+    await page.getByRole('button', { name: '생성' }).click();
+    await page.getByLabel('문서 제목').fill('템플릿 테스트');
+    await page.getByLabel('분류').fill('검증');
+    await page.getByLabel('설명').fill('템플릿 전개 확인');
+    await page.getByLabel('새 문서 내용').fill('== 개요 ==\n{{교내 안내}}');
+    await page.getByRole('button', { name: '문서 생성' }).click();
+    await expect(page.getByText('미림 템플릿 출력')).toBeVisible();
+
+    await page.getByRole('button', { name: '엔진' }).click();
+    await page.getByRole('button', { name: '문서 삭제' }).click();
+    await expect(page.getByLabel('위키 엔진')).toContainText('템플릿 테스트');
+    await page.getByRole('button', { name: '템플릿 테스트 복구' }).click();
+    await expect(page.getByRole('heading', { name: '템플릿 테스트' })).toBeVisible();
   });
 });

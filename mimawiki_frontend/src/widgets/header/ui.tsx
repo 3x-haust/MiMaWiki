@@ -219,7 +219,7 @@ const readStoredTheme = (): ThemeMode => {
   return localStorage.getItem(THEME_STORAGE_KEY) === 'light' ? 'light' : 'dark';
 };
 
-const dispatchWikiMode = (mode: 'recent' | 'discussion' | 'create') => {
+const dispatchWikiMode = (mode: 'recent' | 'discussion' | 'engine') => {
   window.dispatchEvent(new CustomEvent('mimawiki:mode', { detail: mode }));
 };
 
@@ -271,7 +271,7 @@ export const Header = () => {
         >
           최근 토론
         </HeaderNavButton>
-        <HeaderNavButton onClick={() => dispatchWikiMode('create')} type="button">
+        <HeaderNavButton onClick={() => dispatchWikiMode('engine')} type="button">
           특수 기능 ▾
         </HeaderNavButton>
       </NavigationList>

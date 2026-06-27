@@ -3,7 +3,10 @@ import type {
   DiscussionComment,
   StoredWikiState,
   TextPatch,
+  WikiAttachment,
+  WikiRedirect,
   WikiRevision,
+  WikiTemplate,
 } from './wikiStore';
 
 const STORAGE_KEY = 'mimawiki:wiki-state:v1';
@@ -13,6 +16,12 @@ const emptyState: StoredWikiState = {
   discussions: {},
   createdArticles: [],
   likedSlugs: [],
+  redirects: {},
+  templates: [],
+  attachments: [],
+  protectedSlugs: [],
+  deletedSlugs: [],
+  watchlistSlugs: [],
 };
 
 const isRevision = (value: unknown): value is WikiRevision => {
@@ -72,6 +81,52 @@ const isArticle = (value: unknown): value is WikiArticle => {
   );
 };
 
+const isRedirect = (value: unknown): value is WikiRedirect => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const candidate = value as Partial<WikiRedirect>;
+  return (
+    typeof candidate.aliasSlug === 'string' &&
+    typeof candidate.aliasTitle === 'string' &&
+    typeof candidate.targetSlug === 'string' &&
+    typeof candidate.createdAt === 'string'
+  );
+};
+
+const isTemplate = (value: unknown): value is WikiTemplate => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const candidate = value as Partial<WikiTemplate>;
+  return (
+    typeof candidate.id === 'string' &&
+    typeof candidate.name === 'string' &&
+    typeof candidate.content === 'string' &&
+    typeof candidate.updatedAt === 'string'
+  );
+};
+
+const isAttachment = (value: unknown): value is WikiAttachment => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const candidate = value as Partial<WikiAttachment>;
+  return (
+    typeof candidate.id === 'string' &&
+    typeof candidate.articleSlug === 'string' &&
+    typeof candidate.name === 'string' &&
+    typeof candidate.description === 'string' &&
+    typeof candidate.uploadedAt === 'string'
+  );
+};
+
+const isStringArray = (value: unknown): value is readonly string[] =>
+  Array.isArray(value) && value.every((item) => typeof item === 'string');
+
 const readRecord = <T>(
   value: unknown,
   guard: (item: unknown) => item is T,
@@ -91,6 +146,18 @@ const readRecord = <T>(
   );
 };
 
+const readRedirects = (value: unknown): Record<string, WikiRedirect> => {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).flatMap(([key, redirect]) =>
+      isRedirect(redirect) ? [[key, redirect] as const] : [],
+    ),
+  );
+};
+
 export const loadWikiState = (): StoredWikiState => {
   try {
     const rawState = localStorage.getItem(STORAGE_KEY);
@@ -107,6 +174,20 @@ export const loadWikiState = (): StoredWikiState => {
         : [],
       likedSlugs: Array.isArray(parsed.likedSlugs)
         ? parsed.likedSlugs.filter((slug): slug is string => typeof slug === 'string')
+        : [],
+      redirects: readRedirects(parsed.redirects),
+      templates: Array.isArray(parsed.templates)
+        ? parsed.templates.filter(isTemplate)
+        : [],
+      attachments: Array.isArray(parsed.attachments)
+        ? parsed.attachments.filter(isAttachment)
+        : [],
+      protectedSlugs: isStringArray(parsed.protectedSlugs)
+        ? parsed.protectedSlugs
+        : [],
+      deletedSlugs: isStringArray(parsed.deletedSlugs) ? parsed.deletedSlugs : [],
+      watchlistSlugs: isStringArray(parsed.watchlistSlugs)
+        ? parsed.watchlistSlugs
         : [],
     };
   } catch {

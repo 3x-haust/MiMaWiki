@@ -98,6 +98,6 @@ export const ReadPanel = ({
         ))}
       </InfoTable>
     ) : null}
-    <MimaMark content={article.content} />
+    <MimaMark content={article.renderedContent} />
   </>
 );

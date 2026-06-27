@@ -6,6 +6,7 @@ import {
   HistoryPanel,
   RecentPanel,
 } from './DocumentPanels';
+import { EnginePanel } from './EnginePanel';
 import { ReadPanel } from './ReadPanel';
 import type { HomePageModel } from './useHomePageModel';
 
@@ -18,6 +19,7 @@ export const MainPanel = ({ model }: MainPanelProps) => {
     return (
       <EditPanel
         draftContent={model.draftContent}
+        isProtected={model.isProtected}
         onCancel={() => model.setViewMode('read')}
         onDraftChange={model.setDraftContent}
         onSave={model.handleSave}
@@ -67,6 +69,45 @@ export const MainPanel = ({ model }: MainPanelProps) => {
         contributedArticles={model.contributedArticles}
         likedSlugs={model.storedState.likedSlugs}
         onSelectArticle={model.selectArticle}
+      />
+    );
+  }
+
+  if (model.viewMode === 'engine') {
+    return (
+      <EnginePanel
+        article={model.selectedArticle}
+        articles={model.articles}
+        attachmentDescription={model.attachmentDescription}
+        attachmentName={model.attachmentName}
+        attachments={model.selectedAttachments}
+        backlinks={model.backlinks}
+        categoryIndex={model.categoryIndex}
+        deletedArticles={model.deletedArticles}
+        isProtected={model.isProtected}
+        isWatched={model.isWatched}
+        moveTitle={model.moveTitle}
+        onAddAttachment={model.handleAddAttachment}
+        onCreateRedirect={model.handleCreateRedirect}
+        onDeleteArticle={model.handleDeleteArticle}
+        onMoveArticle={model.handleMoveArticle}
+        onRestoreArticle={model.handleRestoreArticle}
+        onSaveTemplate={model.handleSaveTemplate}
+        onSelectArticle={model.selectArticle}
+        onToggleProtection={model.handleToggleProtection}
+        onToggleWatchlist={model.handleToggleWatchlist}
+        redirectAlias={model.redirectAlias}
+        redirects={model.storedState.redirects}
+        setAttachmentDescription={model.setAttachmentDescription}
+        setAttachmentName={model.setAttachmentName}
+        setMoveTitle={model.setMoveTitle}
+        setRedirectAlias={model.setRedirectAlias}
+        setTemplateContent={model.setTemplateContent}
+        setTemplateName={model.setTemplateName}
+        templateContent={model.templateContent}
+        templateName={model.templateName}
+        templates={model.storedState.templates}
+        watchlistSlugs={model.storedState.watchlistSlugs}
       />
     );
   }

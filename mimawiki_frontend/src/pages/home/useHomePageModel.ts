@@ -12,6 +12,7 @@ import {
   getPopularArticles,
   listRecentChanges,
 } from './homeSelectors';
+import { useWikiEngineModel } from './useWikiEngineModel';
 import {
   buildRevisionFrames,
   buildSnapshots,
@@ -65,8 +66,8 @@ export const useHomePageModel = () => {
     [articleRevisions, selectedArticle.contributors],
   );
   const filteredArticles = useMemo(
-    () => filterArticles(articles, query),
-    [articles, query],
+    () => filterArticles(articles, query, storedState.redirects),
+    [articles, query, storedState.redirects],
   );
   const sidebarRecentChanges = useMemo(
     () => buildSidebarRecentChanges(articles, recentChanges),
@@ -84,6 +85,24 @@ export const useHomePageModel = () => {
   const isLiked = storedState.likedSlugs.includes(selectedArticle.slug);
   const selectedLikeCount = selectedArticle.likeCount + (isLiked ? 1 : 0);
 
+  const updateStoredState = (nextState: StoredWikiState) => {
+    setStoredState(nextState);
+    saveWikiState(nextState);
+  };
+  const selectArticle = (slug: string) => {
+    setSelectedSlug(storedState.redirects[slug]?.targetSlug ?? slug);
+    setViewMode('read');
+  };
+  const wikiEngine = useWikiEngineModel({
+    articles,
+    selectArticle,
+    selectedArticle,
+    setSelectedSlug,
+    setViewMode,
+    storedState,
+    updateStoredState,
+  });
+
   useArticleMetadata(selectedArticle.title, selectedArticle.summary);
   useHeaderEvents(
     (queryText) => {
@@ -99,20 +118,12 @@ export const useHomePageModel = () => {
     setViewMode((currentMode) => (currentMode === 'edit' ? 'read' : currentMode));
   }, [selectedArticle.content, selectedArticle.slug]);
 
-  const updateStoredState = (nextState: StoredWikiState) => {
-    setStoredState(nextState);
-    saveWikiState(nextState);
-  };
-  const selectArticle = (slug: string) => {
-    setSelectedSlug(slug);
-    setViewMode('read');
-  };
   const updateQuery = (nextQuery: string) => {
     setQuery(nextQuery);
     setViewMode('read');
   };
   const handleModeChange = (nextMode: ViewMode) => {
-    if (nextMode === 'edit') {
+    if (nextMode === 'edit' && !wikiEngine.isProtected) {
       setDraftContent(selectedArticle.content);
     }
     setViewMode(nextMode);
@@ -130,6 +141,11 @@ export const useHomePageModel = () => {
   };
   const handleSave = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (wikiEngine.isProtected) {
+      setViewMode('engine');
+      return;
+    }
+
     const nextContent = draftContent.trimEnd();
     if (nextContent === selectedArticle.content) {
       setViewMode('read');
@@ -209,6 +225,7 @@ export const useHomePageModel = () => {
     selectedLikeCount, setCreateCategory, setCreateContent, setCreateSummary,
     setCreateTitle, setDiscussionDraft, setDraftContent, setViewMode,
     sidebarRecentChanges, selectArticle, storedState, updateQuery, viewMode,
+    ...wikiEngine,
   };
 };
 
