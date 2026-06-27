@@ -1,5 +1,5 @@
 import { initialArticles, type WikiArticle } from './articles';
-import { getEditorName } from './homeConstants';
+import { defaultRealtimeKeywords, getEditorName } from './homeConstants';
 import type { SidebarRecentChange } from './homeTypes';
 import type {
   StoredWikiState,
@@ -74,6 +74,15 @@ export const buildSidebarRecentChanges = (
     title: article.title,
     time: index === 0 ? '방금 전' : `${index + 2}분 전`,
   }));
+};
+
+export const getRealtimeKeywords = (state: StoredWikiState): readonly string[] => {
+  const keywords = Object.entries(state.searchKeywords)
+    .sort((left, right) => right[1] - left[1])
+    .map(([keyword]) => keyword)
+    .slice(0, 5);
+
+  return keywords.length > 0 ? keywords : defaultRealtimeKeywords;
 };
 
 export const getPopularArticles = (

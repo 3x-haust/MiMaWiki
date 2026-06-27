@@ -2,7 +2,7 @@ export const getEditorName = () => '미림 편집자';
 
 export const formatCount = (value: number) => value.toLocaleString('ko-KR');
 
-export const realtimeKeywords = [
+export const defaultRealtimeKeywords = [
   '전공동아리',
   '프로젝트 발표회',
   '뉴미디어소프트웨어과',

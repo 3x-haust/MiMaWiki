@@ -1,5 +1,5 @@
-import { formatCount, realtimeKeywords } from './homeConstants';
-import type { SidebarRecentChange } from './homeTypes';
+import { formatCount } from './homeConstants';
+import type { SidebarRecentChange, WikiSyncStatus } from './homeTypes';
 import {
   DocumentButton,
   DocumentList,
@@ -33,7 +33,9 @@ type SidebarRailsProps = {
   readonly popularArticles: readonly WikiSnapshot[];
   readonly filteredArticles: readonly WikiSnapshot[];
   readonly likedSlugs: readonly string[];
+  readonly realtimeKeywords: readonly string[];
   readonly query: string;
+  readonly syncStatus: WikiSyncStatus;
   readonly onQueryChange: (query: string) => void;
   readonly onSelectArticle: (slug: string) => void;
 };
@@ -46,7 +48,9 @@ export const SidebarRails = ({
   popularArticles,
   filteredArticles,
   likedSlugs,
+  realtimeKeywords,
   query,
+  syncStatus,
   onQueryChange,
   onSelectArticle,
 }: SidebarRailsProps) => (
@@ -129,6 +133,16 @@ export const SidebarRails = ({
         <MetadataRow>
           <MetadataTerm>대표 색상</MetadataTerm>
           <MetadataDescription>#008156</MetadataDescription>
+        </MetadataRow>
+        <MetadataRow>
+          <MetadataTerm>동기화</MetadataTerm>
+          <MetadataDescription>
+            {syncStatus === 'online'
+              ? '서버 연결됨'
+              : syncStatus === 'saving'
+                ? '서버 저장 중'
+                : '오프라인 저장'}
+          </MetadataDescription>
         </MetadataRow>
       </MetadataList>
     </Rail>

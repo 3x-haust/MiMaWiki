@@ -14,3 +14,5 @@ export type SidebarRecentChange = {
   readonly title: string;
   readonly time: string;
 };
+
+export type WikiSyncStatus = 'online' | 'saving' | 'offline';

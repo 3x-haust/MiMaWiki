@@ -10,23 +10,21 @@ import {
   findSeedArticle,
   getContributedArticles,
   getPopularArticles,
+  getRealtimeKeywords,
   listRecentChanges,
 } from './homeSelectors';
+import { useSyncedWikiState } from './useSyncedWikiState';
 import { useWikiEngineModel } from './useWikiEngineModel';
 import {
   buildRevisionFrames,
   buildSnapshots,
   createDiscussionComment,
   createRevision,
-  loadWikiState,
-  saveWikiState,
-  type StoredWikiState,
 } from './wikiStore';
+import { recordSearchKeyword } from './wikiSearchKeywords';
 
 export const useHomePageModel = () => {
-  const [storedState, setStoredState] = useState<StoredWikiState>(() =>
-    loadWikiState(),
-  );
+  const { storedState, syncStatus, updateStoredState } = useSyncedWikiState();
   const [selectedSlug, setSelectedSlug] = useState(initialArticles[0].slug);
   const [query, setQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('read');
@@ -81,14 +79,14 @@ export const useHomePageModel = () => {
     () => getContributedArticles(articles, storedState),
     [articles, storedState],
   );
+  const realtimeKeywords = useMemo(
+    () => getRealtimeKeywords(storedState),
+    [storedState],
+  );
   const articleComments = storedState.discussions[selectedArticle.slug] ?? [];
   const isLiked = storedState.likedSlugs.includes(selectedArticle.slug);
   const selectedLikeCount = selectedArticle.likeCount + (isLiked ? 1 : 0);
 
-  const updateStoredState = (nextState: StoredWikiState) => {
-    setStoredState(nextState);
-    saveWikiState(nextState);
-  };
   const selectArticle = (slug: string) => {
     setSelectedSlug(storedState.redirects[slug]?.targetSlug ?? slug);
     setViewMode('read');
@@ -107,6 +105,10 @@ export const useHomePageModel = () => {
   useHeaderEvents(
     (queryText) => {
       setQuery(queryText);
+      const nextState = recordSearchKeyword(storedState, queryText);
+      if (nextState !== storedState) {
+        updateStoredState(nextState);
+      }
       setViewMode('read');
     },
     setViewMode,
@@ -221,10 +223,10 @@ export const useHomePageModel = () => {
     draftContent, discussionDraft, filteredArticles, handleCreateArticle,
     handleDiscussionSubmit,
     handleModeChange, handleSave, handleToggleLike, handleUtilityClick, isLiked,
-    popularArticles, query, recentChanges, revisionFrames, selectedArticle,
+    popularArticles, query, realtimeKeywords, recentChanges, revisionFrames, selectedArticle,
     selectedLikeCount, setCreateCategory, setCreateContent, setCreateSummary,
     setCreateTitle, setDiscussionDraft, setDraftContent, setViewMode,
-    sidebarRecentChanges, selectArticle, storedState, updateQuery, viewMode,
+    sidebarRecentChanges, selectArticle, storedState, syncStatus, updateQuery, viewMode,
     ...wikiEngine,
   };
 };

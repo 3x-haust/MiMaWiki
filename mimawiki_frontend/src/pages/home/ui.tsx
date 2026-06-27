@@ -31,9 +31,11 @@ export const HomePage = () => {
           onSelectArticle={model.selectArticle}
           popularArticles={model.popularArticles}
           query={model.query}
+          realtimeKeywords={model.realtimeKeywords}
           recentChanges={model.sidebarRecentChanges}
           revisionCount={model.articleRevisions.length}
           selectedArticle={model.selectedArticle}
+          syncStatus={model.syncStatus}
         />
       </WikiShell>
     </Page>

@@ -58,6 +58,7 @@ export type StoredWikiState = {
   readonly protectedSlugs: readonly string[];
   readonly deletedSlugs: readonly string[];
   readonly watchlistSlugs: readonly string[];
+  readonly searchKeywords: Record<string, number>;
 };
 
 export type WikiSnapshot = WikiArticle & {

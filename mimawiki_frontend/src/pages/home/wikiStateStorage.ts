@@ -11,7 +11,7 @@ import type {
 
 const STORAGE_KEY = 'mimawiki:wiki-state:v1';
 
-const emptyState: StoredWikiState = {
+export const emptyWikiState: StoredWikiState = {
   revisions: {},
   discussions: {},
   createdArticles: [],
@@ -22,6 +22,7 @@ const emptyState: StoredWikiState = {
   protectedSlugs: [],
   deletedSlugs: [],
   watchlistSlugs: [],
+  searchKeywords: {},
 };
 
 const isRevision = (value: unknown): value is WikiRevision => {
@@ -127,6 +128,18 @@ const isAttachment = (value: unknown): value is WikiAttachment => {
 const isStringArray = (value: unknown): value is readonly string[] =>
   Array.isArray(value) && value.every((item) => typeof item === 'string');
 
+const readKeywordRecord = (value: unknown): Record<string, number> => {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).filter(
+      (entry): entry is [string, number] => typeof entry[1] === 'number',
+    ),
+  );
+};
+
 const readRecord = <T>(
   value: unknown,
   guard: (item: unknown) => item is T,
@@ -158,40 +171,51 @@ const readRedirects = (value: unknown): Record<string, WikiRedirect> => {
   );
 };
 
+export const normalizeWikiState = (value: unknown): StoredWikiState => {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return emptyWikiState;
+  }
+
+  const parsed = value as Partial<StoredWikiState>;
+  return {
+    revisions: readRecord(parsed.revisions, isRevision),
+    discussions: readRecord(parsed.discussions, isComment),
+    createdArticles: Array.isArray(parsed.createdArticles)
+      ? parsed.createdArticles.filter(isArticle)
+      : [],
+    likedSlugs: Array.isArray(parsed.likedSlugs)
+      ? parsed.likedSlugs.filter((slug): slug is string => typeof slug === 'string')
+      : [],
+    redirects: readRedirects(parsed.redirects),
+    templates: Array.isArray(parsed.templates) ? parsed.templates.filter(isTemplate) : [],
+    attachments: Array.isArray(parsed.attachments)
+      ? parsed.attachments.filter(isAttachment)
+      : [],
+    protectedSlugs: isStringArray(parsed.protectedSlugs)
+      ? parsed.protectedSlugs
+      : [],
+    deletedSlugs: isStringArray(parsed.deletedSlugs) ? parsed.deletedSlugs : [],
+    watchlistSlugs: isStringArray(parsed.watchlistSlugs)
+      ? parsed.watchlistSlugs
+      : [],
+    searchKeywords: readKeywordRecord(parsed.searchKeywords),
+  };
+};
+
 export const loadWikiState = (): StoredWikiState => {
   try {
     const rawState = localStorage.getItem(STORAGE_KEY);
     if (rawState === null) {
-      return emptyState;
+      return emptyWikiState;
     }
 
-    const parsed = JSON.parse(rawState) as Partial<StoredWikiState>;
-    return {
-      revisions: readRecord(parsed.revisions, isRevision),
-      discussions: readRecord(parsed.discussions, isComment),
-      createdArticles: Array.isArray(parsed.createdArticles)
-        ? parsed.createdArticles.filter(isArticle)
-        : [],
-      likedSlugs: Array.isArray(parsed.likedSlugs)
-        ? parsed.likedSlugs.filter((slug): slug is string => typeof slug === 'string')
-        : [],
-      redirects: readRedirects(parsed.redirects),
-      templates: Array.isArray(parsed.templates)
-        ? parsed.templates.filter(isTemplate)
-        : [],
-      attachments: Array.isArray(parsed.attachments)
-        ? parsed.attachments.filter(isAttachment)
-        : [],
-      protectedSlugs: isStringArray(parsed.protectedSlugs)
-        ? parsed.protectedSlugs
-        : [],
-      deletedSlugs: isStringArray(parsed.deletedSlugs) ? parsed.deletedSlugs : [],
-      watchlistSlugs: isStringArray(parsed.watchlistSlugs)
-        ? parsed.watchlistSlugs
-        : [],
-    };
-  } catch {
-    return emptyState;
+    return normalizeWikiState(JSON.parse(rawState));
+  } catch (error) {
+    if (error instanceof Error) {
+      return emptyWikiState;
+    }
+
+    throw error;
   }
 };
 

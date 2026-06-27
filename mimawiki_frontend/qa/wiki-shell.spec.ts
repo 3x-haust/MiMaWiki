@@ -24,6 +24,45 @@ const expectRemovedFeatureCopyAbsent = async (page: Page) => {
   }
 };
 
+const routeWikiStateApi = async (
+  page: Page,
+  onPersist?: (payload: unknown) => void,
+) => {
+  await page.route('https://api-mimawiki.mmhs.app/wiki/state', async (route) => {
+    if (route.request().method() === 'PUT') {
+      onPersist?.(route.request().postDataJSON());
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: route.request().postDataJSON(),
+          message: '위키 상태 저장 성공',
+        }),
+      });
+      return;
+    }
+
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: {
+          revisions: {},
+          discussions: {},
+          createdArticles: [],
+          likedSlugs: [],
+          redirects: {},
+          templates: [],
+          attachments: [],
+          protectedSlugs: [],
+          deletedSlugs: [],
+          watchlistSlugs: [],
+          searchKeywords: { 서버검색어: 7 },
+        },
+        message: '위키 상태 조회 성공',
+      }),
+    });
+  });
+};
+
 test.describe('MiMaWiki shell', () => {
   for (const viewport of [
     { width: 375, height: 812 },
@@ -200,6 +239,26 @@ test.describe('MiMaWiki shell', () => {
     await page.getByRole('button', { name: '특수 기능 ▾' }).click();
     await expect(page.getByRole('heading', { name: '위키 엔진' })).toBeVisible();
     await expectRemovedFeatureCopyAbsent(page);
+  });
+
+  test('wiki state loads and persists through the backend api', async ({ page }) => {
+    const persistedPayloads: unknown[] = [];
+    await routeWikiStateApi(page, (payload) => persistedPayloads.push(payload));
+
+    await page.goto('/');
+    await expect(page.getByLabel('실시간 검색어')).toContainText('서버검색어');
+    await expect(page.getByTestId('metadata-rail')).toContainText('서버 연결됨');
+
+    await page.getByRole('button', { name: '편집', exact: true }).click();
+    await page
+      .getByLabel('문서 내용')
+      .fill('== 개요 ==\n백엔드 저장 확인 문서입니다.');
+    await page.getByRole('button', { name: '저장' }).click();
+
+    await expect.poll(() => persistedPayloads.length).toBeGreaterThan(0);
+    expect(JSON.stringify(persistedPayloads[persistedPayloads.length - 1])).toContain(
+      '백엔드 저장 확인',
+    );
   });
 
   test('wiki engine functions work from the engine surface', async ({ page }) => {

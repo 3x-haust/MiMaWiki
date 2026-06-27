@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { WikiModule } from './wiki/wiki.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     }),
     UserModule,
     AuthModule,
+    WikiModule,
   ],
   controllers: [],
   providers: [],
