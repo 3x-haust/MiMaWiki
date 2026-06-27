@@ -5,7 +5,7 @@ WORKDIR /app
 RUN corepack enable && corepack prepare yarn@1.22.22 --activate
 
 COPY mimawiki_frontend/package.json mimawiki_frontend/yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --network-timeout 600000
 
 COPY mimawiki_frontend/ ./
 RUN yarn build
@@ -17,11 +17,11 @@ WORKDIR /app
 RUN corepack enable && corepack prepare yarn@1.22.22 --activate
 
 COPY mimawiki_backend/package.json mimawiki_backend/yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --network-timeout 600000
 
 COPY mimawiki_backend/ ./
 RUN yarn build
-RUN yarn install --frozen-lockfile --production=true
+RUN yarn install --frozen-lockfile --production=true --network-timeout 600000
 
 FROM node:22-alpine
 
