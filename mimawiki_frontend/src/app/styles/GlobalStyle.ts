@@ -3,19 +3,31 @@ import theme from './theme';
 
 const GlobalStyles = createGlobalStyle`
   :root {
-    --surface-primary: #FFFFFF;
-    --surface-secondary: #F7F8F6;
-    --surface-elevated: #FFFFFF;
-    --text-primary: #17211D;
-    --text-secondary: #5D6964;
-    --text-tertiary: #8A9691;
-    --border-default: #DDE5E0;
-    --border-subtle: #EDF2EF;
+    --surface-primary: #000000;
+    --surface-secondary: #111214;
+    --surface-elevated: #1B1C1F;
+    --text-primary: #E7E7E7;
+    --text-secondary: #A7A7A7;
+    --text-tertiary: #777777;
+    --border-default: #3B3C40;
+    --border-subtle: #2C2D30;
     --accent-primary: #008156;
     --accent-hover: #006E49;
-    --accent-soft: #E7F4EF;
-    --status-warning: #8A5A00;
-    --status-error: #B42318;
+    --accent-soft: #0B2A20;
+    --link-wiki: #F0A000;
+    --header-bg: #111214;
+    --header-border: #2C2D30;
+    --header-text: #E7E7E7;
+    --control-bg: #050505;
+    --control-hover: #232427;
+    --category-bg: #101112;
+    --notice-icon-bg: #26272A;
+    --school-cell-bg: #0D3A2B;
+    --board-link: #19C44A;
+    --diff-removed: #FF8A80;
+    --placeholder-text: #696969;
+    --status-warning: #F0A000;
+    --status-error: #FF8A80;
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 12px;
@@ -24,6 +36,36 @@ const GlobalStyles = createGlobalStyle`
     --space-6: 24px;
     --space-8: 32px;
     --space-10: 40px;
+    color-scheme: dark;
+  }
+
+  html[data-theme='light'] {
+    --surface-primary: #F2F3F5;
+    --surface-secondary: #E9ECEF;
+    --surface-elevated: #FFFFFF;
+    --text-primary: #242629;
+    --text-secondary: #555D66;
+    --text-tertiary: #818892;
+    --border-default: #CCD1D7;
+    --border-subtle: #E0E4E8;
+    --accent-primary: #008156;
+    --accent-hover: #006E49;
+    --accent-soft: #E7F4EF;
+    --link-wiki: #B87500;
+    --header-bg: #008156;
+    --header-border: #006E49;
+    --header-text: #FFFFFF;
+    --control-bg: #FFFFFF;
+    --control-hover: #E7F4EF;
+    --category-bg: #F6F7F8;
+    --notice-icon-bg: #F0F2F4;
+    --school-cell-bg: #DFF1EA;
+    --board-link: #008156;
+    --diff-removed: #B42318;
+    --placeholder-text: #818892;
+    --status-warning: #9A6700;
+    --status-error: #B42318;
+    color-scheme: light;
   }
 
   *, *::before, *::after {

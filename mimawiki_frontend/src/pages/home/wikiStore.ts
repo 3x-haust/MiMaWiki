@@ -1,5 +1,7 @@
 import { initialArticles, type WikiArticle } from './articles';
 
+export { loadWikiState, saveWikiState } from './wikiStateStorage';
+
 export type TextPatch = {
   readonly start: number;
   readonly deleteCount: number;
@@ -23,9 +25,22 @@ export type DiscussionComment = {
   readonly content: string;
 };
 
+export type CoinTrade = {
+  readonly id: string;
+  readonly type: 'buy' | 'sell' | 'daily';
+  readonly coinCount: number;
+  readonly coinPrice: number;
+  readonly createdAt: string;
+};
+
 export type StoredWikiState = {
   readonly revisions: Record<string, readonly WikiRevision[]>;
   readonly discussions: Record<string, readonly DiscussionComment[]>;
+  readonly createdArticles: readonly WikiArticle[];
+  readonly likedSlugs: readonly string[];
+  readonly coinBalance: number;
+  readonly coinCount: number;
+  readonly trades: readonly CoinTrade[];
 };
 
 export type WikiSnapshot = WikiArticle & {
@@ -36,68 +51,6 @@ export type RevisionFrame = {
   readonly revision: WikiRevision;
   readonly before: string;
   readonly after: string;
-};
-
-const STORAGE_KEY = 'mimawiki:wiki-state:v1';
-
-const emptyState: StoredWikiState = {
-  revisions: {},
-  discussions: {},
-};
-
-const isRevision = (value: unknown): value is WikiRevision => {
-  if (typeof value !== 'object' || value === null) {
-    return false;
-  }
-
-  const candidate = value as Partial<WikiRevision>;
-  const patch = candidate.patch as Partial<TextPatch> | undefined;
-  return (
-    typeof candidate.id === 'string' &&
-    typeof candidate.articleSlug === 'string' &&
-    typeof candidate.version === 'number' &&
-    typeof candidate.editedAt === 'string' &&
-    typeof candidate.editor === 'string' &&
-    typeof patch === 'object' &&
-    patch !== null &&
-    typeof patch.start === 'number' &&
-    typeof patch.deleteCount === 'number' &&
-    typeof patch.insert === 'string'
-  );
-};
-
-const isComment = (value: unknown): value is DiscussionComment => {
-  if (typeof value !== 'object' || value === null) {
-    return false;
-  }
-
-  const candidate = value as Partial<DiscussionComment>;
-  return (
-    typeof candidate.id === 'string' &&
-    typeof candidate.articleSlug === 'string' &&
-    typeof candidate.author === 'string' &&
-    typeof candidate.createdAt === 'string' &&
-    typeof candidate.content === 'string'
-  );
-};
-
-const readRecord = <T>(
-  value: unknown,
-  guard: (item: unknown) => item is T,
-): Record<string, readonly T[]> => {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    return {};
-  }
-
-  const entries = Object.entries(value).flatMap(([key, items]) => {
-    if (!Array.isArray(items)) {
-      return [];
-    }
-
-    return [[key, items.filter(guard)] as const];
-  });
-
-  return Object.fromEntries(entries);
 };
 
 const createId = () => {
@@ -115,27 +68,6 @@ const formatDateTime = (date: Date) => {
   const hours = `${date.getHours()}`.padStart(2, '0');
   const minutes = `${date.getMinutes()}`.padStart(2, '0');
   return `${year}.${month}.${day} ${hours}:${minutes}`;
-};
-
-export const loadWikiState = (): StoredWikiState => {
-  try {
-    const rawState = localStorage.getItem(STORAGE_KEY);
-    if (rawState === null) {
-      return emptyState;
-    }
-
-    const parsed = JSON.parse(rawState) as Partial<StoredWikiState>;
-    return {
-      revisions: readRecord(parsed.revisions, isRevision),
-      discussions: readRecord(parsed.discussions, isComment),
-    };
-  } catch {
-    return emptyState;
-  }
-};
-
-export const saveWikiState = (state: StoredWikiState) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 };
 
 export const createTextPatch = (previous: string, next: string): TextPatch => {
@@ -170,7 +102,7 @@ export const applyTextPatch = (content: string, patch: TextPatch) =>
   )}`;
 
 export const buildSnapshots = (state: StoredWikiState): readonly WikiSnapshot[] =>
-  initialArticles.map((article) => {
+  [...initialArticles, ...state.createdArticles].map((article) => {
     const revisions = state.revisions[article.slug] ?? [];
     const content = revisions.reduce(
       (currentContent, revision) => applyTextPatch(currentContent, revision.patch),
@@ -211,6 +143,18 @@ export const createDiscussionComment = (
   author,
   createdAt: formatDateTime(new Date()),
   content,
+});
+
+export const createCoinTrade = (
+  type: CoinTrade['type'],
+  coinCount: number,
+  coinPrice: number,
+): CoinTrade => ({
+  id: createId(),
+  type,
+  coinCount,
+  coinPrice,
+  createdAt: formatDateTime(new Date()),
 });
 
 export const buildRevisionFrames = (

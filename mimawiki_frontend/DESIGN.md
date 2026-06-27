@@ -2,7 +2,7 @@
 
 ## 1. Atmosphere & Identity
 
-MiMaWiki feels like a school archive desk: fast to scan, plain enough for daily edits, and unmistakably Mirim through one restrained green accent. The signature is document-first density with crisp dividers and small operational controls.
+MiMaWiki follows a NamuWiki-like dark document desk: black canvas, dense bordered panels, compact controls, and Mirim identity through restrained green accents. The signature is a wiki main page with school-local content, not a marketing site.
 
 ## 2. Color
 
@@ -10,23 +10,36 @@ MiMaWiki feels like a school archive desk: fast to scan, plain enough for daily 
 
 | Role | Token | Light | Dark | Usage |
 |------|-------|-------|------|-------|
-| Surface/primary | --surface-primary | #FFFFFF | #111513 | Main canvas |
-| Surface/secondary | --surface-secondary | #F7F8F6 | #171D1A | Sidebars, quiet panels |
-| Surface/elevated | --surface-elevated | #FFFFFF | #1C241F | Header, article body, popovers |
-| Text/primary | --text-primary | #17211D | #F3F7F4 | Headlines, body |
-| Text/secondary | --text-secondary | #5D6964 | #B5C0BA | Metadata, secondary labels |
-| Text/tertiary | --text-tertiary | #8A9691 | #7E8A84 | Disabled, quiet notes |
-| Border/default | --border-default | #DDE5E0 | #2B3731 | Panel borders, dividers |
-| Border/subtle | --border-subtle | #EDF2EF | #202A25 | Soft row separators |
-| Accent/primary | --accent-primary | #008156 | #00A06B | Primary action, links, focus |
-| Accent/hover | --accent-hover | #006E49 | #22B884 | Hover state |
-| Accent/soft | --accent-soft | #E7F4EF | #102D23 | Selected rows, tags |
-| Status/warning | --status-warning | #8A5A00 | #F0B429 | Caution copy |
+| Surface/primary | --surface-primary | #F2F3F5 | #000000 | Main canvas |
+| Surface/secondary | --surface-secondary | #E9ECEF | #111214 | Header, page bands |
+| Surface/elevated | --surface-elevated | #FFFFFF | #1B1C1F | Article body, sidebar cards |
+| Text/primary | --text-primary | #242629 | #E7E7E7 | Headlines, body |
+| Text/secondary | --text-secondary | #555D66 | #A7A7A7 | Metadata, secondary labels |
+| Text/tertiary | --text-tertiary | #818892 | #777777 | Disabled, quiet notes |
+| Border/default | --border-default | #CCD1D7 | #3B3C40 | Panel borders, dividers |
+| Border/subtle | --border-subtle | #E0E4E8 | #2C2D30 | Soft row separators |
+| Accent/primary | --accent-primary | #008156 | #008156 | Mirim action, selected state, focus |
+| Accent/hover | --accent-hover | #006E49 | #006E49 | Hover state |
+| Accent/soft | --accent-soft | #E7F4EF | #0B2A20 | Selected rows, tags |
+| Link/wiki | --link-wiki | #B87500 | #F0A000 | NamuWiki-like links |
+| Header/background | --header-bg | #008156 | #111214 | Top navigation |
+| Header/border | --header-border | #006E49 | #2C2D30 | Header and search separator |
+| Header/text | --header-text | #FFFFFF | #E7E7E7 | Top navigation text |
+| Control/background | --control-bg | #FFFFFF | #050505 | Search, inputs, textareas |
+| Control/hover | --control-hover | #E7F4EF | #232427 | Compact control hover state |
+| Category/background | --category-bg | #F6F7F8 | #101112 | Article badges |
+| Notice/icon | --notice-icon-bg | #F0F2F4 | #26272A | Main-page notice icon cells |
+| School/cell | --school-cell-bg | #DFF1EA | #0D3A2B | Mirim school info table term cells |
+| Board/link | --board-link | #008156 | #19C44A | Board-style links |
+| Diff/removed | --diff-removed | #B42318 | #FF8A80 | Removed diff text |
+| Placeholder/text | --placeholder-text | #818892 | #696969 | Input placeholders |
+| Status/warning | --status-warning | #9A6700 | #F0A000 | Caution copy |
 | Status/error | --status-error | #B42318 | #FF8A80 | Error copy |
 
 ### Rules
 
-- The Mirim green is interactive, not decorative.
+- The Mirim green is interactive and identity-bearing.
+- Wiki links use --link-wiki when the surface should read like NamuWiki.
 - Panels are separated by borders and tonal shifts. No ornamental gradients.
 - New colors must be added here before use.
 
@@ -36,8 +49,8 @@ MiMaWiki feels like a school archive desk: fast to scan, plain enough for daily 
 
 | Level | Size | Weight | Line Height | Tracking | Usage |
 |-------|------|--------|-------------|----------|-------|
-| Display | 32px | 800 | 1.2 | 0 | Product title |
-| H1 | 28px | 800 | 1.25 | 0 | Article title |
+| Display | 36px | 800 | 1.2 | 0 | Product title |
+| H1 | 42px | 800 | 1.2 | 0 | Article title |
 | H2 | 22px | 700 | 1.35 | 0 | Article sections |
 | H3 | 18px | 700 | 1.45 | 0 | Panel headings |
 | Body/lg | 17px | 400 | 1.7 | 0 | Lead article text |
@@ -74,8 +87,8 @@ All spacing derives from 4px.
 
 ### Grid
 
-- Max content width: 1440px
-- Layout: 280px left rail, fluid article, 260px right rail
+- Max content width: 1784px
+- Layout: fluid article plus 360px right sidebar stack
 - Breakpoints: phone 768px, tablet 1024px
 
 ### Rules
@@ -86,11 +99,17 @@ All spacing derives from 4px.
 ## 5. Components
 
 ### Wiki Shell
-- **Structure**: header, left document rail, central article/editor, right metadata rail.
+- **Structure**: dark header, central article/editor, right sidebar cards for realtime keywords, recent changes, document info, and recent documents.
 - **Spacing**: --space-4 for rails, --space-6 for article content.
 - **States**: selected document uses --accent-soft; actions use --accent-primary.
 - **Accessibility**: native buttons and inputs, visible focus ring.
 - **Motion**: hover and focus transitions only.
+
+### BumaWiki-Inspired Function Surfaces
+- **Document creation**: compact create form in the article area, saved into the local wiki state.
+- **Likes and popularity**: article like toggle updates the selected article and right-side popular ranking.
+- **My page**: shows local contributions and liked documents.
+- **Coin**: local MiMaCoin wallet, buy/sell controls, daily reward, trade history, and ranking preview.
 
 ### Document Row
 - **Structure**: button containing title, category, timestamp.

@@ -21,11 +21,11 @@ export type WikiArticle = {
 export const initialArticles: readonly WikiArticle[] = [
   {
     slug: 'mirim-meister-high-school',
-    title: '미림마이스터고등학교',
-    category: '학교',
-    updatedAt: '2026.06.26',
+    title: '미마위키:대문',
+    category: '미마위키',
+    updatedAt: '2026-06-26 16:09:45',
     editor: '학생회 기록팀',
-    summary: '서울 관악구에 있는 뉴미디어 분야 마이스터고.',
+    summary: '미림마이스터고등학교판 나무위키.',
     viewCount: 8156,
     likeCount: 156,
     contributors: ['학생회 기록팀', '소프트웨어과 편집자', '디자인과 편집자'],
@@ -43,7 +43,7 @@ export const initialArticles: readonly WikiArticle[] = [
       { name: '대표 색상', content: '#008156' },
     ],
     content: `== 개요 ==
-미림마이스터고등학교는 뉴미디어소프트웨어, 뉴미디어웹솔루션, 뉴미디어디자인 분야를 중심으로 배우는 마이스터고등학교다.
+미마위키는 미림마이스터고등학교의 수업, 동아리, 학교 생활, 프로젝트 기록을 모으는 학교판 나무위키다.
 
 == 안내 ==
 미마위키는 미림 학생이라면 누구나 기여할 수 있는 학교 위키다. 검증되지 않았거나 편향된 내용이 있을 수 있으므로, 문서를 읽고 편집할 때는 출처와 맥락을 함께 확인한다.
@@ -65,7 +65,7 @@ export const initialArticles: readonly WikiArticle[] = [
     likeCount: 88,
     contributors: ['동아리 연합', '프론트엔드 편집자'],
     quickLinks: [
-      { name: '학교 대문', content: '미림마이스터고등학교' },
+      { name: '학교 대문', content: '미마위키:대문' },
       { name: '작성 규칙', content: '미마위키 작성 규칙' },
     ],
     content: `== 개요 ==
@@ -88,7 +88,7 @@ export const initialArticles: readonly WikiArticle[] = [
     likeCount: 42,
     contributors: ['운영진', '검수 담당'],
     quickLinks: [
-      { name: '학교 대문', content: '미림마이스터고등학교' },
+      { name: '학교 대문', content: '미마위키:대문' },
       { name: '전공동아리', content: '전공동아리' },
     ],
     content: `== 기본 원칙 ==

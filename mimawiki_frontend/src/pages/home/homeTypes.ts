@@ -1,0 +1,16 @@
+export type ViewMode =
+  | 'read'
+  | 'edit'
+  | 'history'
+  | 'discussion'
+  | 'recent'
+  | 'create'
+  | 'mypage'
+  | 'coin';
+
+export type SidebarRecentChange = {
+  readonly id: string;
+  readonly slug: string;
+  readonly title: string;
+  readonly time: string;
+};
