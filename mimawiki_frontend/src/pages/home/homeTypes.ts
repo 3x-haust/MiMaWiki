@@ -5,8 +5,7 @@ export type ViewMode =
   | 'discussion'
   | 'recent'
   | 'create'
-  | 'mypage'
-  | 'coin';
+  | 'mypage';
 
 export type SidebarRecentChange = {
   readonly id: string;

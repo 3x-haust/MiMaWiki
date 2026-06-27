@@ -34,10 +34,17 @@ const Container = styled.header`
 const NavigationList = styled.ul`
   display: flex;
   align-items: center;
-  gap: var(--space-5);
+  gap: var(--space-4);
+  min-width: 0;
 
   @media screen and (max-width: ${screen.tablet}) {
     flex-wrap: wrap;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  @media screen and (max-width: ${screen.phone}) {
+    gap: var(--space-2);
   }
 `;
 
@@ -49,6 +56,12 @@ const Logo = styled.div`
   font-weight: 800;
   color: var(--header-text);
   letter-spacing: 0;
+  min-width: 0;
+  white-space: nowrap;
+
+  @media screen and (max-width: ${screen.phone}) {
+    width: 100%;
+  }
 `;
 
 const LogoMeta = styled.span`
@@ -60,10 +73,13 @@ const LogoMeta = styled.span`
 const HeaderNavButton = styled.button`
   border-radius: 6px;
   color: var(--header-text);
+  flex: 0 0 auto;
   font-size: 16px;
   font-weight: 800;
+  line-height: 1.2;
   min-height: 42px;
   padding: 0 var(--space-2);
+  white-space: nowrap;
 
   &:hover {
     background-color: color-mix(in srgb, var(--header-text) 12%, transparent);
@@ -73,7 +89,16 @@ const HeaderNavButton = styled.button`
 const UtilityBox = styled.div`
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  min-width: 0;
+
+  @media screen and (max-width: ${screen.tablet}) {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
 
   @media screen and (max-width: ${screen.phone}) {
     align-items: stretch;
@@ -87,6 +112,7 @@ const UserName = styled.span`
   color: var(--header-text);
   font-size: 13px;
   font-weight: 600;
+  overflow-wrap: anywhere;
 `;
 
 const SearchForm = styled.form`
@@ -95,15 +121,21 @@ const SearchForm = styled.form`
   border: 1px solid var(--header-border);
   border-radius: 6px;
   display: flex;
+  flex: 1 1 280px;
   height: 52px;
+  max-width: 390px;
+  min-width: 220px;
   overflow: hidden;
-  width: min(430px, 34vw);
+  width: auto;
 
   @media screen and (max-width: ${screen.tablet}) {
-    width: min(520px, 100%);
+    max-width: none;
   }
 
   @media screen and (max-width: ${screen.phone}) {
+    flex: 0 0 auto;
+    height: 48px;
+    min-width: 0;
     width: 100%;
   }
 `;
@@ -132,6 +164,7 @@ const NavigationButton = styled.button`
   gap: var(--space-2);
   align-items: center;
   display: flex;
+  white-space: nowrap;
   transition: background-color 120ms ease-out, border-color 120ms ease-out;
 
   &:hover:not(:disabled) {
@@ -147,7 +180,6 @@ const NavigationButton = styled.button`
 
   @media screen and (max-width: ${screen.phone}) {
     justify-content: center;
-    white-space: nowrap;
     width: 100%;
   }
 `;
@@ -166,6 +198,7 @@ const SearchButton = styled(NavigationButton)`
   }
 
   @media screen and (max-width: ${screen.phone}) {
+    min-height: 48px;
     width: auto;
   }
 `;
@@ -186,7 +219,7 @@ const readStoredTheme = (): ThemeMode => {
   return localStorage.getItem(THEME_STORAGE_KEY) === 'light' ? 'light' : 'dark';
 };
 
-const dispatchWikiMode = (mode: 'recent' | 'discussion' | 'coin') => {
+const dispatchWikiMode = (mode: 'recent' | 'discussion' | 'create') => {
   window.dispatchEvent(new CustomEvent('mimawiki:mode', { detail: mode }));
 };
 
@@ -238,7 +271,7 @@ export const Header = () => {
         >
           최근 토론
         </HeaderNavButton>
-        <HeaderNavButton onClick={() => dispatchWikiMode('coin')} type="button">
+        <HeaderNavButton onClick={() => dispatchWikiMode('create')} type="button">
           특수 기능 ▾
         </HeaderNavButton>
       </NavigationList>

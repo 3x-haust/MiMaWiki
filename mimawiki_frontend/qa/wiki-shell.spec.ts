@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 const blockedCopy = [
   'ULTRAWORK',
@@ -8,6 +8,21 @@ const blockedCopy = [
   'Must NOT',
   'failing-first proof',
 ] as const;
+
+const removedFeatureCopy = [
+  '\uCF54\uC778',
+  '\uBBF8\uB9C8\uCF54\uC778',
+  'MI' + 'MA',
+  '\uC9C0\uAC11',
+  '\uCD9C\uC11D \uBCF4\uC0C1',
+] as const;
+
+const expectRemovedFeatureCopyAbsent = async (page: Page) => {
+  const bodyText = await page.locator('body').innerText();
+  for (const text of removedFeatureCopy) {
+    expect(bodyText).not.toContain(text);
+  }
+};
 
 test.describe('MiMaWiki shell', () => {
   for (const viewport of [
@@ -46,6 +61,9 @@ test.describe('MiMaWiki shell', () => {
 
       const bodyText = await page.locator('body').innerText();
       for (const text of blockedCopy) {
+        expect(bodyText).not.toContain(text);
+      }
+      for (const text of removedFeatureCopy) {
         expect(bodyText).not.toContain(text);
       }
     });
@@ -96,7 +114,7 @@ test.describe('MiMaWiki shell', () => {
     await expect(page.getByRole('heading', { name: '전공동아리' })).toBeVisible();
   });
 
-  test('BumaWiki-style create, like, mypage, and coin surfaces work locally', async ({
+  test('BumaWiki-style create, like, and mypage surfaces work locally', async ({
     page,
   }) => {
     await page.goto('/');
@@ -130,14 +148,7 @@ test.describe('MiMaWiki shell', () => {
     await expect(page.getByLabel('마이페이지')).toContainText('내 기여 문서');
     await expect(page.getByLabel('마이페이지')).toContainText('프로젝트 발표회');
     await expect(page.getByLabel('마이페이지')).toContainText('좋아요 문서');
-
-    await page.getByRole('button', { name: '코인' }).click();
-    await expect(page.getByLabel('미마코인')).toContainText('내 지갑');
-    await expect(page.getByLabel('미마코인')).toContainText('잔액 81,560원');
-    await page.getByRole('button', { name: '출석 보상' }).click();
-    await expect(page.getByLabel('미마코인')).toContainText('잔액 89,716원');
-    await page.getByRole('button', { name: '1 MIMA 구매' }).click();
-    await expect(page.getByLabel('미마코인')).toContainText('보유 9 MIMA');
+    await expectRemovedFeatureCopyAbsent(page);
   });
 
   test('editing creates history, diff, discussion, and recent changes', async ({ page }) => {
@@ -187,6 +198,7 @@ test.describe('MiMaWiki shell', () => {
     await expect(page.getByRole('heading', { name: '문서 토론' })).toBeVisible();
 
     await page.getByRole('button', { name: '특수 기능 ▾' }).click();
-    await expect(page.getByRole('heading', { name: '미마코인' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '문서 생성' })).toBeVisible();
+    await expectRemovedFeatureCopyAbsent(page);
   });
 });

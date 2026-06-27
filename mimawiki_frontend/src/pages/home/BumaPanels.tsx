@@ -1,9 +1,7 @@
 import type { FormEvent } from 'react';
-import { formatCount, getEditorName } from './homeConstants';
-import type { CoinTrade, WikiSnapshot } from './wikiStore';
+import type { WikiSnapshot } from './wikiStore';
 import {
   ButtonRow,
-  DangerButton,
   DocumentList,
   EmptyState,
   FeatureCard,
@@ -16,20 +14,11 @@ import {
   Panel,
   PanelTitle,
   PrimaryButton,
-  RankingList,
   RecentChangeRow,
   RecentChangeTime,
   RecentChangeTitle,
-  SecondaryButton,
-  SidebarListItem,
-  SidebarRank,
   TextArea,
   TextInput,
-  Timeline,
-  TimelineHeader,
-  TimelineItem,
-  TimelineMeta,
-  TimelineTitle,
 } from './styles';
 
 type CreatePanelProps = {
@@ -163,83 +152,4 @@ const ArticleShortcutList = ({
       <EmptyState>{emptyText}</EmptyState>
     )}
   </DocumentList>
-);
-
-const tradeLabels = {
-  buy: '구매',
-  sell: '판매',
-  daily: '출석 보상',
-} as const satisfies Record<CoinTrade['type'], string>;
-
-type CoinPanelProps = {
-  readonly coinBalance: number;
-  readonly coinCount: number;
-  readonly trades: readonly CoinTrade[];
-  readonly onCoinTrade: (type: 'buy' | 'sell') => void;
-  readonly onDailyReward: () => void;
-};
-
-export const CoinPanel = ({
-  coinBalance,
-  coinCount,
-  trades,
-  onCoinTrade,
-  onDailyReward,
-}: CoinPanelProps) => (
-  <Panel aria-label="미마코인">
-    <PanelTitle>미마코인</PanelTitle>
-    <FeatureGrid>
-      <FeatureCard>
-        <FeatureCardTitle>내 지갑</FeatureCardTitle>
-        <FeatureCardMeta>
-          잔액 {formatCount(coinBalance)}원 · 보유 {formatCount(coinCount)} MIMA
-        </FeatureCardMeta>
-        <ButtonRow>
-          <PrimaryButton onClick={() => onCoinTrade('buy')} type="button">
-            1 MIMA 구매
-          </PrimaryButton>
-          <SecondaryButton onClick={() => onCoinTrade('sell')} type="button">
-            1 MIMA 판매
-          </SecondaryButton>
-          <DangerButton onClick={onDailyReward} type="button">
-            출석 보상
-          </DangerButton>
-        </ButtonRow>
-      </FeatureCard>
-      <FeatureCard>
-        <FeatureCardTitle>코인 랭킹</FeatureCardTitle>
-        <RankingList>
-          {[
-            ['학생회 기록팀', 42],
-            ['소프트웨어과 편집자', 31],
-            ['디자인과 편집자', 28],
-            [getEditorName(), coinCount],
-          ].map(([name, count], index) => (
-            <SidebarListItem key={name}>
-              <SidebarRank>{index + 1}</SidebarRank>
-              <FeatureCardMeta>
-                {name} · {formatCount(Number(count))} MIMA
-              </FeatureCardMeta>
-            </SidebarListItem>
-          ))}
-        </RankingList>
-      </FeatureCard>
-    </FeatureGrid>
-    <Timeline>
-      {trades.length > 0 ? (
-        trades.map((trade) => (
-          <TimelineItem key={trade.id}>
-            <TimelineHeader>
-              <TimelineTitle>{tradeLabels[trade.type]}</TimelineTitle>
-              <TimelineMeta>
-                {trade.createdAt} · {formatCount(trade.coinPrice)}원
-              </TimelineMeta>
-            </TimelineHeader>
-          </TimelineItem>
-        ))
-      ) : (
-        <EmptyState>거래 내역이 없습니다.</EmptyState>
-      )}
-    </Timeline>
-  </Panel>
 );

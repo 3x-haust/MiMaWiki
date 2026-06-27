@@ -109,7 +109,6 @@ All spacing derives from 4px.
 - **Document creation**: compact create form in the article area, saved into the local wiki state.
 - **Likes and popularity**: article like toggle updates the selected article and right-side popular ranking.
 - **My page**: shows local contributions and liked documents.
-- **Coin**: local MiMaCoin wallet, buy/sell controls, daily reward, trade history, and ranking preview.
 
 ### Document Row
 - **Structure**: button containing title, category, timestamp.

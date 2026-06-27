@@ -1,6 +1,5 @@
 import type { WikiArticle } from './articles';
 import type {
-  CoinTrade,
   DiscussionComment,
   StoredWikiState,
   TextPatch,
@@ -14,9 +13,6 @@ const emptyState: StoredWikiState = {
   discussions: {},
   createdArticles: [],
   likedSlugs: [],
-  coinBalance: 81560,
-  coinCount: 8,
-  trades: [],
 };
 
 const isRevision = (value: unknown): value is WikiRevision => {
@@ -76,23 +72,6 @@ const isArticle = (value: unknown): value is WikiArticle => {
   );
 };
 
-const isTrade = (value: unknown): value is CoinTrade => {
-  if (typeof value !== 'object' || value === null) {
-    return false;
-  }
-
-  const candidate = value as Partial<CoinTrade>;
-  return (
-    typeof candidate.id === 'string' &&
-    (candidate.type === 'buy' ||
-      candidate.type === 'sell' ||
-      candidate.type === 'daily') &&
-    typeof candidate.coinCount === 'number' &&
-    typeof candidate.coinPrice === 'number' &&
-    typeof candidate.createdAt === 'string'
-  );
-};
-
 const readRecord = <T>(
   value: unknown,
   guard: (item: unknown) => item is T,
@@ -129,13 +108,6 @@ export const loadWikiState = (): StoredWikiState => {
       likedSlugs: Array.isArray(parsed.likedSlugs)
         ? parsed.likedSlugs.filter((slug): slug is string => typeof slug === 'string')
         : [],
-      coinBalance:
-        typeof parsed.coinBalance === 'number'
-          ? parsed.coinBalance
-          : emptyState.coinBalance,
-      coinCount:
-        typeof parsed.coinCount === 'number' ? parsed.coinCount : emptyState.coinCount,
-      trades: Array.isArray(parsed.trades) ? parsed.trades.filter(isTrade) : [],
     };
   } catch {
     return emptyState;

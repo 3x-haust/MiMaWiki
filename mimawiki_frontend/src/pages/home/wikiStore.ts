@@ -25,22 +25,11 @@ export type DiscussionComment = {
   readonly content: string;
 };
 
-export type CoinTrade = {
-  readonly id: string;
-  readonly type: 'buy' | 'sell' | 'daily';
-  readonly coinCount: number;
-  readonly coinPrice: number;
-  readonly createdAt: string;
-};
-
 export type StoredWikiState = {
   readonly revisions: Record<string, readonly WikiRevision[]>;
   readonly discussions: Record<string, readonly DiscussionComment[]>;
   readonly createdArticles: readonly WikiArticle[];
   readonly likedSlugs: readonly string[];
-  readonly coinBalance: number;
-  readonly coinCount: number;
-  readonly trades: readonly CoinTrade[];
 };
 
 export type WikiSnapshot = WikiArticle & {
@@ -143,18 +132,6 @@ export const createDiscussionComment = (
   author,
   createdAt: formatDateTime(new Date()),
   content,
-});
-
-export const createCoinTrade = (
-  type: CoinTrade['type'],
-  coinCount: number,
-  coinPrice: number,
-): CoinTrade => ({
-  id: createId(),
-  type,
-  coinCount,
-  coinPrice,
-  createdAt: formatDateTime(new Date()),
 });
 
 export const buildRevisionFrames = (

@@ -1,5 +1,5 @@
 import { initialArticles } from './articles';
-import { CoinPanel, CreatePanel, MyPagePanel } from './BumaPanels';
+import { CreatePanel, MyPagePanel } from './BumaPanels';
 import {
   DiscussionPanel,
   EditPanel,
@@ -67,18 +67,6 @@ export const MainPanel = ({ model }: MainPanelProps) => {
         contributedArticles={model.contributedArticles}
         likedSlugs={model.storedState.likedSlugs}
         onSelectArticle={model.selectArticle}
-      />
-    );
-  }
-
-  if (model.viewMode === 'coin') {
-    return (
-      <CoinPanel
-        coinBalance={model.storedState.coinBalance}
-        coinCount={model.storedState.coinCount}
-        onCoinTrade={model.handleCoinTrade}
-        onDailyReward={model.handleDailyReward}
-        trades={model.storedState.trades}
       />
     );
   }

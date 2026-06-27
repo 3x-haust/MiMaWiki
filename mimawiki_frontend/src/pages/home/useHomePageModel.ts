@@ -15,7 +15,6 @@ import {
 import {
   buildRevisionFrames,
   buildSnapshots,
-  createCoinTrade,
   createDiscussionComment,
   createRevision,
   loadWikiState,
@@ -178,34 +177,6 @@ export const useHomePageModel = () => {
         : [...storedState.likedSlugs, selectedArticle.slug],
     });
   };
-  const handleDailyReward = () => {
-    const reward = 8156;
-    updateStoredState({
-      ...storedState,
-      coinBalance: storedState.coinBalance + reward,
-      trades: [createCoinTrade('daily', 0, reward), ...storedState.trades],
-    });
-  };
-  const handleCoinTrade = (type: 'buy' | 'sell') => {
-    const price = 8156;
-    if (type === 'buy' && storedState.coinBalance < price) {
-      return;
-    }
-    if (type === 'sell' && storedState.coinCount < 1) {
-      return;
-    }
-
-    updateStoredState({
-      ...storedState,
-      coinBalance:
-        type === 'buy'
-          ? storedState.coinBalance - price
-          : storedState.coinBalance + price,
-      coinCount:
-        type === 'buy' ? storedState.coinCount + 1 : storedState.coinCount - 1,
-      trades: [createCoinTrade(type, 1, price), ...storedState.trades],
-    });
-  };
   const handleDiscussionSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const content = discussionDraft.trim();
@@ -231,8 +202,8 @@ export const useHomePageModel = () => {
   return {
     articleComments, articleRevisions, articles, contributorNames,
     contributedArticles, createCategory, createContent, createSummary, createTitle,
-    draftContent, discussionDraft, filteredArticles, handleCoinTrade,
-    handleCreateArticle, handleDailyReward, handleDiscussionSubmit,
+    draftContent, discussionDraft, filteredArticles, handleCreateArticle,
+    handleDiscussionSubmit,
     handleModeChange, handleSave, handleToggleLike, handleUtilityClick, isLiked,
     popularArticles, query, recentChanges, revisionFrames, selectedArticle,
     selectedLikeCount, setCreateCategory, setCreateContent, setCreateSummary,
