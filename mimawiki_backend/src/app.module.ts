@@ -5,6 +5,10 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { WikiModule } from './wiki/wiki.module';
+import { readDatabaseConnectionSettings } from './config/database-env';
+
+const databaseConnectionSettings =
+  readDatabaseConnectionSettings(process.env);
 
 @Module({
   imports: [
@@ -13,11 +17,7 @@ import { WikiModule } from './wiki/wiki.module';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
+      ...databaseConnectionSettings,
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
