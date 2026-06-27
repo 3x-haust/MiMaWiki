@@ -10,5 +10,6 @@ test-results
 mimawiki_backend/node_modules
 mimawiki_backend/dist
 mimawiki_frontend/node_modules
+mimawiki_frontend/dist
 mimawiki_frontend/playwright-report
 mimawiki_frontend/test-results

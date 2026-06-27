@@ -8,13 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist/*
-!dist/assets/
-!dist/assets/**
-!dist/fonts/
-!dist/fonts/**
-!dist/favicon.svg
-!dist/index.html
+dist
 dist-ssr
 *.local
 
